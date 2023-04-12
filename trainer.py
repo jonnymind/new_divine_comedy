@@ -1,14 +1,17 @@
 import torch
 
 class Trainer:
-    def __init__(self, model, optimizer, train_data, val_data, eval_interval = 100, estimate_iters=1000):
+    def __init__(self, model, optimizer, train_data, val_data, eval_interval = 100, estimate_iters=1000,
+                 output_file=None, save_iters=1000):
         self.model = model
         self.optimizer = optimizer
         self.eval_interval = eval_interval
-        self.estimate_iters = estimate_iters
+        self.loss_samples = estimate_iters
         self.train_data = train_data
         self.val_data = val_data
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.output_file = output_file
+        self.save_iters = save_iters
     
     def __call__(self, train_iters, batch_size, block_size):
         self.train(train_iters, batch_size, block_size)
@@ -18,6 +21,8 @@ class Trainer:
         for step in range(train_iters):
             self.on_step(step, batch_size, block_size)
             self.train_step(batch_size, block_size)
+            if self.output_file != None and step % self.save_iters == 0:
+                torch.save(self.model, self.output_file)
 
     def train_step(self, batch_size, block_size):
         xb, yb = self.get_batch(self.train_data, batch_size, block_size)
@@ -31,8 +36,8 @@ class Trainer:
         out = {}
         self.model.eval()
         for type, split in [("train", self.train_data), ("val", self.val_data)]:
-            losses = torch.zeros(self.estimate_iters)
-            for k in range(self.estimate_iters):
+            losses = torch.zeros(self.loss_samples)
+            for k in range(self.loss_samples):
                 xb, yb = self.get_batch(split, batch_size, block_size)
                 logits, loss = self.model(xb, yb)
                 losses[k] = loss.item()

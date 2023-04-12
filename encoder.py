@@ -43,7 +43,9 @@ class Encoder:
                 part_size -= 1
 
             if part_size == 0:
-                raise f"Invalid dictionary; token not found '{text[pos : pos+1]}'"
+                msg = f"Invalid dictionary; token not found ad position {pos}: \"{text[pos : pos+1]}\""
+                print(msg)
+                raise "Invalid dictionary"
             pos += part_size
             part_size = self.longest_token_size
         return result
@@ -52,6 +54,8 @@ class Encoder:
         result = []
         for token in data:
             if token not in self.tokens_by_id:
-                raise f"Invalid data; token not found '{token}'"
+                msg = f"Invalid data; token not found \"{token}\""
+                print(msg)
+                raise "Invalid data"
             result.append(self.tokens_by_id[token])
         return ''.join(result)

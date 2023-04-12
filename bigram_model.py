@@ -7,6 +7,7 @@ class BigramLanguageModel(nn.Module):
     def __init__(self, voc_size, block_size, n_embed, n_heads, n_layers, dropout=0.2):
         super().__init__()
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.voc_size = voc_size
         self.n_embed = n_embed
         self.n_heads = n_heads
         self.block_size = block_size

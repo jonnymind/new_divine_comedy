@@ -1,6 +1,8 @@
 #!/bin/env python
 import re
 import json
+import sys
+from encoder import *
 
 def save_tokenized_vector(tokens, filename):
     with open(filename, "w") as f:
@@ -82,11 +84,20 @@ def create_word_components(words):
         found = find_subword(word, components)
         if not found:
             components.add(word)
-    return components
+    return sorted(components)
 
-with open("commedia.txt", "r") as dataFile:
+
+srcfile, dictfile, outfile = sys.argv[1], sys.argv[2], sys.argv[3]
+print(f"Input data {srcfile}; tokens written to {dictfile}; tokenized output written to {outfile}")
+
+with open(srcfile, "r", encoding="utf-8") as dataFile:
     text = dataFile.read()
 
-components = create_word_components(set(tokenize_text(text)))
-save_tokenized_vector(sorted(components), "commedia_tokens.json")
-print(f"Found {len(components)} tokens.")
+voc = create_word_components(set(tokenize_text(text)))
+print(f"Found {len(voc)} tokens.")
+save_tokenized_vector(voc, dictfile)
+
+encoder = Encoder(voc)
+result = encoder.encode(text)
+print(f"Writing tokenized output of {len(result)} entries")
+save_tokenized_vector(result, outfile)

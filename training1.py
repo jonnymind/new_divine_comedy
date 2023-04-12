@@ -10,6 +10,7 @@ from bigram_model import BigramLanguageModel
 
 import sys
 import io
+import functools
 # Create a new output stream with UTF-8 encoding
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -19,7 +20,7 @@ block_size = 256
 batch_size = 32
 eval_iters = 100
 estimate_iters = 1000
-train_iters = 100
+train_iters = 5000
 learning_rate = 3e-4
 n_embed = 384
 n_heads = 6
@@ -27,6 +28,7 @@ n_layers = 6
 dropout = 0.2
 #---
 device = "cuda" if torch.cuda.is_available() else "cpu"
+print = functools.partial(print, flush=True)
 print(f"Using device {device}")
 
 def tokenize_file(filename):
